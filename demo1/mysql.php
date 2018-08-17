@@ -2,7 +2,7 @@
 header("Content-type:text/html; charset=utf-8");
 	//1.链接数据库
 
-	$link = mysqli_connect('gz-cdb-orsuxagx.sql.tencentcdb.com:62156','troot','tata1000+!');
+	$link = mysqli_connect('gz-cdb-orsuxagx.sql.tencentcdb.com:62156','root','tata1000+!');
 		
 	//2 判断是否连接成功
 	if(!$link){
