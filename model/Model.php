@@ -3,8 +3,14 @@ $config = include 'config.php';
 
  $m = new Model($config);
  echo '<pre>';
-print_r($m->limit('0,2')->table('user')->select());
+print_r($m->limit('0,20')->table('user')->select());
+//$data = ['name'=>'小填','gender'=>'男','age'=>23];
+//$id = $m->table('user')->insert($data,true);
+var_dump($id);
+
  echo $m->sql;
+ 
+ 
 /*数据库连接操作基类 */
 class Model
 {
@@ -201,7 +207,7 @@ class Model
 		return $newData;
 	 }
 	//exec
-	function exec($sql,$isInsert = false)
+	function exec($sql,$isInsert)
 	{
 		// 执行sql语句
 		$result = mysqli_query($this->link, $sql);
@@ -224,7 +230,7 @@ class Model
 	}
 	
 	//insert函数  $data给关联数组
-	function insert($data)
+	function insert($data,$isInsert = false)
 	{
 		//处理值是字符串问题
 		$data = $this->parseValue($data);
@@ -237,7 +243,7 @@ class Model
 		['%TABLE%','%FIELD%','%VALUES%'], 
 		[$this->options['table'],join(',',$keys),join(',',$vals)], $sql);
 		$this->sql = $sql;
-		return $this->exec($sql);
+		return $this->exec($sql,$isInsert);
 		
 	}
 	//处理插入插入数据的数组
@@ -250,6 +256,19 @@ class Model
 			$newData[$key] = $value; 
 		}
 		return $newData;
+	}
+	
+	//删除函数
+	function delete()
+	{
+		$sql = 'delete from %TABLE% %WHERE%';
+		$sql = str_replace(
+		['%TABLE%','%WHERE%'], 
+		[$this->options['table'],$this->options['where']], $sql);
+		//保存sql语句
+		$this->sql = $sql;
+		//执行sql语句
+		return $this->exec($sql);
 	}
 }
 ?>
