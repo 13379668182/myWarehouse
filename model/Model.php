@@ -3,10 +3,13 @@ $config = include 'config.php';
 
  $m = new Model($config);
  echo '<pre>';
-print_r($m->limit('0,20')->table('user')->select());
-//$data = ['name'=>'小填','gender'=>'男','age'=>23];
+//print_r($m->limit('0,20')->table('user')->select());
+//$data = ['name'=>'小填xin','gender'=>'女','age'=>123];
 //$id = $m->table('user')->insert($data,true);
-var_dump($id);
+//var_dump($m->table('user')->where('id=11')->delete(true));
+//var_dump($m->table('user')->where('id=12')->update($data));
+//var_dump($id);
+var_dump($m->table('user')->max('age'));
 
  echo $m->sql;
  
@@ -111,7 +114,7 @@ class Model
 	{
 		if(!empty($field)){
 			if(is_string($field)){
-				$this->optins['field']  = $field;
+				$this->options['field']  = $field;
 			}else if(is_array($field)){
 				$this->options['field']  = join(',',$field);
 			}
@@ -206,13 +209,13 @@ class Model
 		}
 		return $newData;
 	 }
-	//exec
-	function exec($sql,$isInsert)
+	//exe执行函数
+	function exec($sql,$param = false)
 	{
 		// 执行sql语句
 		$result = mysqli_query($this->link, $sql);
 		if($result && mysqli_affected_rows($this->link)){
-			if($isInsert){ //如果你需要返回插入的ID 就写两个参数
+			if($param){ //如果你需要返回插入的ID 就写两个参数
 				return mysqli_insert_id($this->link);
 			}else{//返回受影响的行数
 				return mysqli_affected_rows($this->link);
@@ -269,6 +272,41 @@ class Model
 		$this->sql = $sql;
 		//执行sql语句
 		return $this->exec($sql);
+	}
+	
+	//updata方法  $data 关联数组
+	function update($data)
+	{
+		//处理字符串加引号问题
+		$data = $this->parseValue($data);
+		//将关联数组拼接成固定的格式
+		$value = $this-> parseUpdate($data);
+		//准备sql语句
+		$sql = 'update %TABLE% set %VALUE% %WHERE%';
+		$sql = str_replace(
+		['%TABLE%','%VALUE%','%WHERE%'],
+		 [$this->options['table'],$value,$this->options['where']], $sql);
+		 //保存sql 语句
+		 $this->sql = $sql;
+		 return $this->exec($sql);
+		
+	}
+	
+	//将关联数组拼接成固定的格式
+	protected function parseUpdate($data)
+	{
+		foreach ($data as $key => $value) {
+			$newData[] = $key.'='.$value; 
+		}
+		return join(',',$newData);
+	}
+	
+	// max函数
+	function max($field)
+	{
+		//通过调用自己封装的方法进行查行
+		$result = $this->field('max('.$field.') as max')->select();
+		return $result[0]['max'];
 	}
 }
 ?>
