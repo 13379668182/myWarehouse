@@ -9,8 +9,8 @@ $config = include 'config.php';
 //var_dump($m->table('user')->where('id=11')->delete(true));
 //var_dump($m->table('user')->where('id=12')->update($data));
 //var_dump($id);
-var_dump($m->table('user')->max('age'));
-
+//var_dump($m->table('user')->max('age'));
+print_r($m->table('user')->getByAge(123));
  echo $m->sql;
  
  
@@ -200,6 +200,8 @@ class Model
 	//query方法
 	 function query($sql)
 	 {
+	 	//每次执行都要清空options数组 要不然上次的数据会残留
+	 	$this->initOptions();
 	 	//执行sql语句
 	 	$result = mysqli_query($this->link, $sql);
 		if($result && mysqli_affected_rows($this->link)){//判断返回结果和影响行数
@@ -212,6 +214,8 @@ class Model
 	//exe执行函数
 	function exec($sql,$param = false)
 	{
+		//每次执行都要清空options数组 要不然上次的数据会残留
+	 	$this->initOptions();
 		// 执行sql语句
 		$result = mysqli_query($this->link, $sql);
 		if($result && mysqli_affected_rows($this->link)){
@@ -307,6 +311,26 @@ class Model
 		//通过调用自己封装的方法进行查行
 		$result = $this->field('max('.$field.') as max')->select();
 		return $result[0]['max'];
+	}
+	
+	//析构方法关闭数据库
+	function __destruct()
+	{
+		mysqli_close($this->link);
+	} 
+	
+	function __call($name,$args)
+	{
+		
+		//获取前5高字符
+		$str = substr($name,0,5);
+		//获取后面的字段名
+		$field = strtolower(substr($name, 5));
+		//判断前5个字符是否是getBy
+		if($str == 'getBy'){
+			return $this->where($field.'="'.$args[0].'"')->select();
+		}
+		return false;
 	}
 }
 ?>
