@@ -227,7 +227,7 @@ class Model
 		};
 		return false;
 	}
-	//调用自己的sql语句的魔术方法
+	//调用自己的sql语句的魔术方法__get()是访问不存在的成员变量时调用的；__set()是设置不存在的成员变量时调用的；
 	function  __get($name){
 		if($name == 'sql'){
 			return $this->sql;
@@ -319,6 +319,7 @@ class Model
 		mysqli_close($this->link);
 	} 
 	
+	//当调用类中不存在的方法时，就会调用__call
 	function __call($name,$args)
 	{
 		
