@@ -17,7 +17,7 @@ class Tpl
 	//构造方法对成员变量进行初始化
 	function __construct($viewDir = null ,$cacheDir = null,$lifeTime = null)
 	{
-		//判断是否为空，如果为空，使用默认值，不为空，判断并且设置值
+	//判断是否为空，如果为空，使用默认值，不为空，判断并且设置值
 		if(!empty($viewDir)){
 			if($this->checkDir($viewDir)){
 				$this->viewDir = $viewDir;
